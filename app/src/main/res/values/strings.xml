@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Android Fragments and Services</string>
+    <string name="menu_refresh_button">Refresh</string>
 </resources>
