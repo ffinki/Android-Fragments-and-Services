@@ -7,15 +7,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.droid.filip.androidfragmentsandservices.fragments.AsyncReferencerFragment;
 
 import static android.view.Window.FEATURE_ACTION_BAR;
 
 public class MainActivity extends AppCompatActivity {
 
+    AsyncReferencerFragment progressBarFragment = null;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        progressBarFragment = AsyncReferencerFragment.establishRetainedAsyncReferencerFragment(this);
         requestWindowFeature(FEATURE_ACTION_BAR);
         setContentView(R.layout.main_activity);
         //
@@ -23,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setTitle("");
         }
+        //
+        ProgressBar pb = (ProgressBar)findViewById(R.id.progress_bar);
+        pb.setSaveEnabled(true);
+        progressBarFragment.startFragmentProgressBar();
     }
 
     @Override
