@@ -1,6 +1,6 @@
 package com.droid.filip.androidfragmentsandservices.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -34,15 +34,20 @@ public class AsyncReferencerFragment extends MonitoredFragment implements IWorke
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
-        MainActivity act = (MainActivity)getActivity();
+        MainActivity act = (MainActivity)requireActivity();
         if (longTaskWithProgressBar != null)
             longTaskWithProgressBar.onStart(act);
     }
 
     public void startFragmentProgressBar() {
-        longTaskWithProgressBar = new MyLongTaskWithProgressBar(FRAGMENT_TAG, this);
+        longTaskWithProgressBar = new MyLongTaskWithProgressBar("Task with Progress Bar", this);
         longTaskWithProgressBar.registerClient(this, 1);
         longTaskWithProgressBar.execute();
     }
@@ -52,8 +57,8 @@ public class AsyncReferencerFragment extends MonitoredFragment implements IWorke
         arf.setRetainInstance(true);
         FragmentManager fm = act.getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.add(arf, FRAGMENT_TAG);
-        ft.commit();
+        ft.add(arf, AsyncReferencerFragment.FRAGMENT_TAG).commit();
+        //ft.commit();
         return arf;
     }
 

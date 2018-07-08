@@ -34,7 +34,7 @@ public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Intege
 
     @Override
     protected Integer doInBackground(String... strings) {
-        for (int i=0; i<5; i++) {
+        for (int i=0; i<=10; i++) {
             try {
                 Thread.sleep(1000);
                 publishProgress(i);
@@ -62,7 +62,7 @@ public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Intege
     private void showProgressBar() {
         ProgressBar pb = getProgressBar();
         pb.setProgress(0);
-        pb.setMax(5);
+        pb.setMax(10);
         pb.setVisibility(View.VISIBLE);
     }
 
@@ -81,7 +81,7 @@ public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Intege
     }
 
     private ProgressBar getProgressBar() {
-        MainActivity act = (MainActivity)retainedFragment.getActivity();
+        MainActivity act = (MainActivity)retainedFragment.requireActivity();
         if (act == null) return null;
         return (ProgressBar)act.findViewById(R.id.progress_bar);
     }
@@ -109,7 +109,7 @@ public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Intege
 
     private void setProgressBarRightOnReattach() {
         ProgressBar pb = getProgressBar();
-        pb.setMax(5);
+        pb.setMax(10);
         pb.setProgress(currProgress);
         pb.setVisibility(View.VISIBLE);
     }

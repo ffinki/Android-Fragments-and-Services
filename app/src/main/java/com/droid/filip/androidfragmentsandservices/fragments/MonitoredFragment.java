@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
+import com.droid.filip.androidfragmentsandservices.MainActivity;
+
 public class MonitoredFragment extends Fragment {
 
     public static String TAG_NAME = "MonitoredFragment";
@@ -59,7 +61,7 @@ public class MonitoredFragment extends Fragment {
     }
 
     public boolean isActivityReady() {
-        Activity act = getActivity();
+        MainActivity act = (MainActivity)requireActivity();
         return act != null;
     }
 }

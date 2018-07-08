@@ -17,6 +17,7 @@ import static android.view.Window.FEATURE_ACTION_BAR;
 public class MainActivity extends AppCompatActivity {
 
     AsyncReferencerFragment progressBarFragment = null;
+    ProgressBar pb = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,8 +31,13 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setTitle("");
         }
         //
-        ProgressBar pb = (ProgressBar)findViewById(R.id.progress_bar);
+        pb = (ProgressBar)findViewById(R.id.progress_bar);
         pb.setSaveEnabled(true);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         progressBarFragment.startFragmentProgressBar();
     }
 
@@ -48,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menu_refresh_icon:
                 Toast.makeText(this, "Refresh pressed", Toast.LENGTH_SHORT).show();
+                progressBarFragment.startFragmentProgressBar();
                 break;
             default:
                 break;
