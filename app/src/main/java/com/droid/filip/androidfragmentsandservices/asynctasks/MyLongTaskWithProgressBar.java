@@ -3,7 +3,9 @@ package com.droid.filip.androidfragmentsandservices.asynctasks;
 
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.ProgressBar;
 
 import com.droid.filip.androidfragmentsandservices.MainActivity;
@@ -12,74 +14,93 @@ import com.droid.filip.androidfragmentsandservices.fragments.MonitoredFragment;
 import com.droid.filip.androidfragmentsandservices.interfaces.IWorkerObject;
 import com.droid.filip.androidfragmentsandservices.interfaces.IWorkerObjectClient;
 import com.droid.filip.androidfragmentsandservices.mocks.MockedResponse;
+import com.droid.filip.androidfragmentsandservices.singleton.GsonSingleton;
+import com.droid.filip.androidfragmentsandservices.stakes.LocationsResponse;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Integer>
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, String>
     implements IWorkerObject {
 
     public String tag = null;
     private MonitoredFragment retainedFragment;
-    int currProgress = 0;
     IWorkerObjectClient client = null;
     int workerObjectPassbackIdentifier = -1;
     private boolean bDoneFlag = false;
+    //
+    private String userAgent;
+    private Gson gson;
 
     public MyLongTaskWithProgressBar(String tag, MonitoredFragment retainedFragment) {
         this.tag = tag;
         this.retainedFragment = retainedFragment;
+        gson = GsonSingleton.getInstance();
     }
 
     @Override
     protected void onPreExecute() {
         showProgressBar();
+        userAgent = new WebView(retainedFragment.getActivity()).getSettings().getUserAgentString();
     }
 
     @Override
-    protected Integer doInBackground(String... strings) {
-        for (int i=0; i<=5; i++) {
-            try {
-                Thread.sleep(1000);
-                publishProgress(i);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+    protected String doInBackground(String... strings) {
+        HttpURLConnection http = null;
+        BufferedReader br = null;
+        LocationsResponse locations = null;
+        try {
+            URL url = new URL(
+                    "http://api.geonames.org/citiesJSON?north=42.3376462&south=40.9201646&east=22.5389436&west=20.89274&lang=en&username=finki");
+            http = (HttpURLConnection)url.openConnection();
+            http.setRequestProperty("User-Agent", userAgent);
+            http.setRequestProperty("Accept", "application/json");
+            br = new BufferedReader(new InputStreamReader(http.getInputStream(), "UTF-8"));
+            locations = (LocationsResponse)gson.fromJson(br, LocationsResponse.class);
+            br.close();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+            if (http != null)
+                http.disconnect();
+        } finally {
+            if (http != null)
+                http.disconnect();
         }
-        return 1;
+        return gson.toJson(locations, new TypeToken<LocationsResponse>(){}.getType());
     }
 
     @Override
-    protected void onPostExecute(Integer integer) {
+    protected void onPostExecute(String response) {
         bDoneFlag = true;
-        if (retainedFragment.isbUiReady())
+        if (retainedFragment.isbUiReady()) {
+            MainActivity activity = (MainActivity)retainedFragment.requireActivity();
+            activity.saveListAfterAsyncTaskEnds(response);
             closeProgressBar();
+        }
+
     }
 
-    @Override
-    protected void onProgressUpdate(Integer... values) {
-        Integer i = values[0];
-        if (retainedFragment.isbUiReady())
-            setProgressOnProgressBar(i);
-    }
 
     private void showProgressBar() {
         ProgressBar pb = getProgressBar();
-        pb.setProgress(0);
-        pb.setMax(5);
         pb.setVisibility(View.VISIBLE);
     }
 
-    private void setProgressOnProgressBar(int i) {
-        this.currProgress = i;
-        ProgressBar pb = getProgressBar();
-        if (pb == null) return;
-        pb.setProgress(i);
-    }
 
     private void closeProgressBar() {
         ProgressBar pb = getProgressBar();
         if (pb == null) return;
         pb.setVisibility(View.GONE);
         MainActivity callingActivity = (MainActivity)retainedFragment.requireActivity();
-        callingActivity.saveListAfterAsyncTaskEnds(true);
         callingActivity.showDetails(0);
         detatchFromParent();
     }
@@ -113,8 +134,6 @@ public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Intege
 
     private void setProgressBarRightOnReattach() {
         ProgressBar pb = getProgressBar();
-        pb.setMax(5);
-        pb.setProgress(currProgress);
         pb.setVisibility(View.VISIBLE);
     }
 
