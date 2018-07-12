@@ -18,7 +18,6 @@ public class AsyncReferencerFragment extends MonitoredFragment implements IWorke
     private final static String FRAGMENT_TAG = "RetainedAsyncReferencerFragment";
 
     MyLongTaskWithProgressBar longTaskWithProgressBar = null;
-    int tryCount = 1;
 
     public AsyncReferencerFragment() {}
 
@@ -58,7 +57,6 @@ public class AsyncReferencerFragment extends MonitoredFragment implements IWorke
         FragmentManager fm = act.getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.add(arf, AsyncReferencerFragment.FRAGMENT_TAG).commit();
-        //ft.commit();
         return arf;
     }
 

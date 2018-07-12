@@ -1,6 +1,6 @@
 package com.droid.filip.androidfragmentsandservices.asynctasks;
 
-import android.app.Activity;
+
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -11,6 +11,7 @@ import com.droid.filip.androidfragmentsandservices.R;
 import com.droid.filip.androidfragmentsandservices.fragments.MonitoredFragment;
 import com.droid.filip.androidfragmentsandservices.interfaces.IWorkerObject;
 import com.droid.filip.androidfragmentsandservices.interfaces.IWorkerObjectClient;
+import com.droid.filip.androidfragmentsandservices.mocks.MockedResponse;
 
 public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Integer>
     implements IWorkerObject {
@@ -34,7 +35,7 @@ public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Intege
 
     @Override
     protected Integer doInBackground(String... strings) {
-        for (int i=0; i<=10; i++) {
+        for (int i=0; i<=5; i++) {
             try {
                 Thread.sleep(1000);
                 publishProgress(i);
@@ -62,7 +63,7 @@ public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Intege
     private void showProgressBar() {
         ProgressBar pb = getProgressBar();
         pb.setProgress(0);
-        pb.setMax(10);
+        pb.setMax(5);
         pb.setVisibility(View.VISIBLE);
     }
 
@@ -77,6 +78,9 @@ public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Intege
         ProgressBar pb = getProgressBar();
         if (pb == null) return;
         pb.setVisibility(View.GONE);
+        MainActivity callingActivity = (MainActivity)retainedFragment.requireActivity();
+        callingActivity.saveListAfterAsyncTaskEnds(true);
+        callingActivity.showDetails(0);
         detatchFromParent();
     }
 
@@ -109,7 +113,7 @@ public class MyLongTaskWithProgressBar extends AsyncTask<String, Integer, Intege
 
     private void setProgressBarRightOnReattach() {
         ProgressBar pb = getProgressBar();
-        pb.setMax(10);
+        pb.setMax(5);
         pb.setProgress(currProgress);
         pb.setVisibility(View.VISIBLE);
     }

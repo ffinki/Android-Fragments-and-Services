@@ -1,4 +1,16 @@
 <resources>
     <string name="app_name">Android Fragments and Services</string>
     <string name="menu_refresh_button">Refresh</string>
+    <string name="location_geonameId">ID: </string>
+    <string name="location_name">Name: </string>
+    <string name="location_countryCode">Country code: </string>
+    <string name="location_fclName">Fcl: </string>
+    <string name="location_toponymName">Toponym: </string>
+    <string name="location_fcodeName">Code name: </string>
+    <string name="location_wikipedia">Wiki: </string>
+    <string name="location_fcl">Fcl: </string>
+    <string name="location_fcode">Code: </string>
+    <string name="location_population">Population: </string>
+    <string name="location_latitude">Latitude: </string>
+    <string name="location_longitude">Longitude: </string>
 </resources>

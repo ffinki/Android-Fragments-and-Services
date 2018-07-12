@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <ProgressBar
@@ -11,8 +11,22 @@
         android:indeterminate="false"
         android:padding="20dp"
         android:layout_gravity="center_horizontal|center_vertical"
-        android:max="10"
+        android:max="5"
         android:progress="0"
         android:visibility="gone"/>
+
+    <FrameLayout
+        android:id="@+id/list_locations"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:padding="10dp"/>
+
+    <FrameLayout
+        android:id="@+id/location_details"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:padding="10dp"/>
 
 </LinearLayout>
