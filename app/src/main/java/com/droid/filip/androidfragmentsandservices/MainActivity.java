@@ -9,17 +9,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.AbsListView;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.droid.filip.androidfragmentsandservices.fragments.AsyncReferencerFragment;
 import com.droid.filip.androidfragmentsandservices.fragments.ListLocationsFragment;
 import com.droid.filip.androidfragmentsandservices.fragments.LocationDetailsFragment;
 
-import java.util.List;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.Window.FEATURE_ACTION_BAR;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     AsyncReferencerFragment progressBarFragment = null;
     ProgressBar pb = null;
     private boolean progressBarDone = false;
+    private FrameLayout listCitiesLayout;
+    private FrameLayout cityDetailsLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
         //
         pb = (ProgressBar)findViewById(R.id.progress_bar);
         pb.setSaveEnabled(true);
+        //
+        listCitiesLayout = (FrameLayout)findViewById(R.id.list_locations);
+        cityDetailsLayout = (FrameLayout)findViewById(R.id.location_details);
     }
 
     @Override
@@ -90,14 +93,19 @@ public class MainActivity extends AppCompatActivity {
                     if (detailsFragment != null) {
                         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                         ft.remove(detailsFragment);
+                        cityDetailsLayout.setLayoutParams(
+                                new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.MATCH_PARENT));
                         ListLocationsFragment locationsFragment = (ListLocationsFragment)
                                 getSupportFragmentManager().findFragmentById(R.id.list_locations);
                         if (locationsFragment == null) {
                             locationsFragment = ListLocationsFragment.newInstance();
                             ft.replace(R.id.list_locations, locationsFragment);
                         }
+                        listCitiesLayout.setLayoutParams(
+                                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
                         ft.commit();
                     }
+
                 }
                 break;
             default:
@@ -134,10 +142,14 @@ public class MainActivity extends AppCompatActivity {
             if (locationsFragment == null && detailsFragment == null) {
                 locationsFragment = ListLocationsFragment.newInstance(index);
                 ft.replace(R.id.list_locations, locationsFragment);
+                listCitiesLayout.setLayoutParams(
+                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
             }
             //we come from landscape mode
             else if (locationsFragment != null && detailsFragment != null) {
                 ft.remove(detailsFragment);
+                listCitiesLayout.setLayoutParams(
+                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
             }
             //we click in some menu item
             else if (locationsFragment != null && detailsFragment == null) {
@@ -145,6 +157,10 @@ public class MainActivity extends AppCompatActivity {
                 detailsFragment = LocationDetailsFragment.newInstance(index);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 ft.replace(R.id.location_details, detailsFragment);
+                listCitiesLayout.setLayoutParams(
+                        new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.MATCH_PARENT));
+                cityDetailsLayout.setLayoutParams(
+                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
             }
         }
         ft.commit();
