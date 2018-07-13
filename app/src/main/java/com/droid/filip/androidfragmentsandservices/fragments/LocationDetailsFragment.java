@@ -9,8 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.droid.filip.androidfragmentsandservices.MainActivity;
 import com.droid.filip.androidfragmentsandservices.R;
 import com.droid.filip.androidfragmentsandservices.mocks.MockedResponse;
+import com.droid.filip.androidfragmentsandservices.singleton.GsonSingleton;
 import com.droid.filip.androidfragmentsandservices.stakes.Location;
 
 import org.w3c.dom.Text;
@@ -18,24 +20,29 @@ import org.w3c.dom.Text;
 public class LocationDetailsFragment extends Fragment {
 
     private int index = 0;
+    private Location location;
 
-    public static LocationDetailsFragment newInstance(int index) {
+    public static LocationDetailsFragment newInstance(int index, String strLocation) {
         LocationDetailsFragment detailsFragment = new LocationDetailsFragment();
         Bundle args = new Bundle();
         args.putInt("SAVED_POSITION", index);
+        args.putString("LOCATION", strLocation);
         detailsFragment.setArguments(args);
         return detailsFragment;
     }
 
     public static LocationDetailsFragment newInstance(Bundle args) {
         int index = args.getInt("SAVED_POSITION");
-        return newInstance(index);
+        String strLocation = args.getString("LOCATION");
+        return newInstance(index, strLocation);
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         index = getArguments().getInt("SAVED_POSITION");
+        location = GsonSingleton.getInstance().fromJson(
+                getArguments().getString("LOCATION"), Location.class);
     }
 
     @Nullable
@@ -55,20 +62,18 @@ public class LocationDetailsFragment extends Fragment {
         TextView latitude = (TextView)v.findViewById(R.id.text_location_latitude);
         TextView longitude = (TextView)v.findViewById(R.id.text_location_longitude);
         //
-        Location currentLocation = MockedResponse.getMockedData().getGeonames()[index];
-        //
-        geoId.setText(String.valueOf(currentLocation.getGeonameId()));
-        name.setText(currentLocation.getName());
-        countryCode.setText(currentLocation.getCountrycode());
-        fclName.setText(currentLocation.getFclName());
-        toponym.setText(currentLocation.getToponymName());
-        codeName.setText(currentLocation.getFcodeName());
-        wiki.setText(currentLocation.getWikipedia());
-        fcl.setText(currentLocation.getFcl());
-        fcode.setText(currentLocation.getFcode());
-        population.setText(String.valueOf(currentLocation.getPopulation()));
-        latitude.setText(String.valueOf(currentLocation.getLat()));
-        longitude.setText(String.valueOf(currentLocation.getLng()));
+        geoId.setText(String.valueOf(location.getGeonameId()));
+        name.setText(location.getName());
+        countryCode.setText(location.getCountrycode());
+        fclName.setText(location.getFclName());
+        toponym.setText(location.getToponymName());
+        codeName.setText(location.getFcodeName());
+        wiki.setText(location.getWikipedia());
+        fcl.setText(location.getFcl());
+        fcode.setText(location.getFcode());
+        population.setText(String.valueOf(location.getPopulation()));
+        latitude.setText(String.valueOf(location.getLat()));
+        longitude.setText(String.valueOf(location.getLng()));
         //
         return v;
     }

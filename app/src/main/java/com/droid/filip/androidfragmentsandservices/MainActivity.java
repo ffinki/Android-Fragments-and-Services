@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,6 +18,11 @@ import android.widget.ProgressBar;
 import com.droid.filip.androidfragmentsandservices.fragments.AsyncReferencerFragment;
 import com.droid.filip.androidfragmentsandservices.fragments.ListLocationsFragment;
 import com.droid.filip.androidfragmentsandservices.fragments.LocationDetailsFragment;
+import com.droid.filip.androidfragmentsandservices.singleton.GsonSingleton;
+import com.droid.filip.androidfragmentsandservices.stakes.Location;
+import com.droid.filip.androidfragmentsandservices.stakes.LocationsResponse;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import static android.view.Window.FEATURE_ACTION_BAR;
 
@@ -24,9 +30,12 @@ public class MainActivity extends AppCompatActivity {
 
     AsyncReferencerFragment progressBarFragment = null;
     ProgressBar pb = null;
-    private boolean progressBarDone = false;
     private FrameLayout listCitiesLayout;
     private FrameLayout cityDetailsLayout;
+    //
+    private LocationsResponse locationsResponse;
+    private String temporatyLocationResponse;
+    private Gson gson;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
         //
         listCitiesLayout = (FrameLayout)findViewById(R.id.list_locations);
         cityDetailsLayout = (FrameLayout)findViewById(R.id.location_details);
+        locationsResponse = null;
+        temporatyLocationResponse = null;
+        gson = GsonSingleton.getInstance();
     }
 
     @Override
@@ -55,13 +67,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        progressBarDone = savedInstanceState.getBoolean("PROGRESS_DONE");
+        temporatyLocationResponse = savedInstanceState.getString("LOCATION");
+        locationsResponse = gson.fromJson(temporatyLocationResponse, LocationsResponse.class);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (!progressBarDone)
+        if (locationsResponse == null)
             progressBarFragment.startFragmentProgressBar();
         else
             showDetails(0);
@@ -70,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("PROGRESS_DONE", progressBarDone);
+        outState.putString("LOCATION", temporatyLocationResponse);
     }
 
     @Override
@@ -93,16 +106,12 @@ public class MainActivity extends AppCompatActivity {
                     if (detailsFragment != null) {
                         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                         ft.remove(detailsFragment);
-                        cityDetailsLayout.setLayoutParams(
-                                new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.MATCH_PARENT));
                         ListLocationsFragment locationsFragment = (ListLocationsFragment)
                                 getSupportFragmentManager().findFragmentById(R.id.list_locations);
                         if (locationsFragment == null) {
-                            locationsFragment = ListLocationsFragment.newInstance();
+                            locationsFragment = ListLocationsFragment.newInstance(0, temporatyLocationResponse);
                             ft.replace(R.id.list_locations, locationsFragment);
                         }
-                        listCitiesLayout.setLayoutParams(
-                                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
                         ft.commit();
                     }
 
@@ -127,11 +136,12 @@ public class MainActivity extends AppCompatActivity {
         //We are in a landscape mode
         if (isMultiPane()) {
             if (locationsFragment == null) {
-                locationsFragment = ListLocationsFragment.newInstance(index);
+                locationsFragment = ListLocationsFragment.newInstance(index, temporatyLocationResponse);
                 ft.replace(R.id.list_locations, locationsFragment);
             }
             if (detailsFragment == null || detailsFragment.getShownIndex() != index) {
-                detailsFragment = LocationDetailsFragment.newInstance(index);
+                String strLocation = gson.toJson(locationsResponse.getGeonames()[index], new TypeToken<Location>(){}.getType());
+                detailsFragment = LocationDetailsFragment.newInstance(index, strLocation);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 ft.replace(R.id.location_details, detailsFragment);
             }
@@ -140,35 +150,31 @@ public class MainActivity extends AppCompatActivity {
         else {
             //we are on beginning
             if (locationsFragment == null && detailsFragment == null) {
-                locationsFragment = ListLocationsFragment.newInstance(index);
+                locationsFragment = ListLocationsFragment.newInstance(index, temporatyLocationResponse);
                 ft.replace(R.id.list_locations, locationsFragment);
-                listCitiesLayout.setLayoutParams(
-                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
             }
             //we come from landscape mode
             else if (locationsFragment != null && detailsFragment != null) {
                 ft.remove(detailsFragment);
-                listCitiesLayout.setLayoutParams(
-                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
             }
             //we click in some menu item
             else if (locationsFragment != null && detailsFragment == null) {
                 ft.remove(locationsFragment);
-                detailsFragment = LocationDetailsFragment.newInstance(index);
+                String strLocation = gson.toJson(locationsResponse.getGeonames()[index], new TypeToken<Location>(){}.getType());
+                detailsFragment = LocationDetailsFragment.newInstance(index, strLocation);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 ft.replace(R.id.location_details, detailsFragment);
-                listCitiesLayout.setLayoutParams(
-                        new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.MATCH_PARENT));
-                cityDetailsLayout.setLayoutParams(
-                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
             }
         }
         ft.commit();
     }
 
-    public void saveListAfterAsyncTaskEnds(boolean save) {
-        this.progressBarDone = save;
+    public void saveListAfterAsyncTaskEnds(String httpResponse) {
+        temporatyLocationResponse = httpResponse;
+        locationsResponse = gson.fromJson(temporatyLocationResponse, LocationsResponse.class);
     }
 
-
+    public LocationsResponse getLocationsResponse() {
+        return locationsResponse;
+    }
 }
