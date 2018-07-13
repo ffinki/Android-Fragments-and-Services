@@ -64,7 +64,9 @@ public class ListLocationsFragment extends ListFragment {
             shownPosition = savedInstanceState.getInt("SAVED_POSITION");
             response = GsonSingleton.getInstance().fromJson(
                 savedInstanceState.getString("LOCATIONS"), LocationsResponse.class);
-            Log.d("LOCATIONS", response.getGeonames().toString());
+        }
+        if (response == null) {
+            response = activity.getLocationsResponse();
         }
         setListAdapter(new ArrayAdapter<String>(
                 getActivity(), android.R.layout.simple_list_item_1, convertCityObjectsToTitles()));
