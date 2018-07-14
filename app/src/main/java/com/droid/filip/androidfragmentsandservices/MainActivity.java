@@ -104,15 +104,20 @@ public class MainActivity extends AppCompatActivity {
                     LocationDetailsFragment detailsFragment = (LocationDetailsFragment)
                             getSupportFragmentManager().findFragmentById(R.id.location_details);
                     if (detailsFragment != null) {
+                        cityDetailsLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                                0, LinearLayout.LayoutParams.MATCH_PARENT));
                         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                        ft.remove(detailsFragment);
+                        ft.remove(detailsFragment).commit();
                         ListLocationsFragment locationsFragment = (ListLocationsFragment)
                                 getSupportFragmentManager().findFragmentById(R.id.list_locations);
                         if (locationsFragment == null) {
+                            listCitiesLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+                            ft = getSupportFragmentManager().beginTransaction();
                             locationsFragment = ListLocationsFragment.newInstance(0, temporatyLocationResponse);
-                            ft.replace(R.id.list_locations, locationsFragment);
+                            ft.replace(R.id.list_locations, locationsFragment).commit();
                         }
-                        ft.commit();
+
                     }
 
                 }
@@ -137,36 +142,44 @@ public class MainActivity extends AppCompatActivity {
         if (isMultiPane()) {
             if (locationsFragment == null) {
                 locationsFragment = ListLocationsFragment.newInstance(index, temporatyLocationResponse);
-                ft.replace(R.id.list_locations, locationsFragment);
+                ft.replace(R.id.list_locations, locationsFragment).commit();
             }
             if (detailsFragment == null || detailsFragment.getShownIndex() != index) {
+                ft = getSupportFragmentManager().beginTransaction();
                 String strLocation = gson.toJson(locationsResponse.getGeonames()[index], new TypeToken<Location>(){}.getType());
                 detailsFragment = LocationDetailsFragment.newInstance(index, strLocation);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.replace(R.id.location_details, detailsFragment);
+                ft.replace(R.id.location_details, detailsFragment).commit();
             }
         }
         //We are in a portrait mode
         else {
             //we are on beginning
             if (locationsFragment == null && detailsFragment == null) {
+                listCitiesLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
                 locationsFragment = ListLocationsFragment.newInstance(index, temporatyLocationResponse);
-                ft.replace(R.id.list_locations, locationsFragment);
+                ft.replace(R.id.list_locations, locationsFragment).commit();
             }
             //we come from landscape mode
             else if (locationsFragment != null && detailsFragment != null) {
-                ft.remove(detailsFragment);
+                listCitiesLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+                ft.remove(detailsFragment).commit();
             }
             //we click in some menu item
             else if (locationsFragment != null && detailsFragment == null) {
-                ft.remove(locationsFragment);
+                listCitiesLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                        0, LinearLayout.LayoutParams.MATCH_PARENT));
+                cityDetailsLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+                ft.remove(locationsFragment).commit();
+                ft = getSupportFragmentManager().beginTransaction();
                 String strLocation = gson.toJson(locationsResponse.getGeonames()[index], new TypeToken<Location>(){}.getType());
                 detailsFragment = LocationDetailsFragment.newInstance(index, strLocation);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.replace(R.id.location_details, detailsFragment);
+                ft.replace(R.id.location_details, detailsFragment).commit();
             }
         }
-        ft.commit();
     }
 
     public void saveListAfterAsyncTaskEnds(String httpResponse) {

@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -15,6 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.droid.filip.androidfragmentsandservices.MainActivity;
+import com.droid.filip.androidfragmentsandservices.R;
 import com.droid.filip.androidfragmentsandservices.mocks.MockedResponse;
 import com.droid.filip.androidfragmentsandservices.singleton.GsonSingleton;
 import com.droid.filip.androidfragmentsandservices.stakes.Location;
@@ -69,7 +71,7 @@ public class ListLocationsFragment extends ListFragment {
             response = activity.getLocationsResponse();
         }
         setListAdapter(new ArrayAdapter<String>(
-                getActivity(), android.R.layout.simple_list_item_1, convertCityObjectsToTitles()));
+                getActivity(), R.layout.list_cities_list_item, convertCityObjectsToTitles()));
         ListView listView = getListView();
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listView.setSelection(shownPosition);
