@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import com.droid.filip.androidfragmentsandservices.fragments.AsyncReferencerFragment;
 import com.droid.filip.androidfragmentsandservices.fragments.ListLocationsFragment;
 import com.droid.filip.androidfragmentsandservices.fragments.LocationDetailsFragment;
+import com.droid.filip.androidfragmentsandservices.fragments.PromptDialog;
 import com.droid.filip.androidfragmentsandservices.singleton.GsonSingleton;
 import com.droid.filip.androidfragmentsandservices.stakes.Location;
 import com.droid.filip.androidfragmentsandservices.stakes.LocationsResponse;
@@ -98,29 +99,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh_icon:
-                if (isMultiPane())
-                    showDetails(0);
-                else {
-                    LocationDetailsFragment detailsFragment = (LocationDetailsFragment)
-                            getSupportFragmentManager().findFragmentById(R.id.location_details);
-                    if (detailsFragment != null) {
-                        cityDetailsLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                                0, LinearLayout.LayoutParams.MATCH_PARENT));
-                        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                        ft.remove(detailsFragment).commit();
-                        ListLocationsFragment locationsFragment = (ListLocationsFragment)
-                                getSupportFragmentManager().findFragmentById(R.id.list_locations);
-                        if (locationsFragment == null) {
-                            listCitiesLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-                            ft = getSupportFragmentManager().beginTransaction();
-                            locationsFragment = ListLocationsFragment.newInstance(0, temporatyLocationResponse);
-                            ft.replace(R.id.list_locations, locationsFragment).commit();
-                        }
-
-                    }
-
-                }
+                PromptDialog dialog = PromptDialog.newInstance();
+                dialog.show(getSupportFragmentManager(), "PROMPT_DIALOG");
                 break;
             default:
                 break;
@@ -189,5 +169,9 @@ public class MainActivity extends AppCompatActivity {
 
     public LocationsResponse getLocationsResponse() {
         return locationsResponse;
+    }
+
+    public String getTemporatyLocationResponse() {
+        return temporatyLocationResponse;
     }
 }
